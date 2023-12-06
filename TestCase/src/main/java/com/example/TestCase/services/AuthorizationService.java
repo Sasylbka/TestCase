@@ -15,8 +15,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Objects;
 
@@ -26,7 +24,9 @@ public class AuthorizationService {
     private final UserService userService;
     private final JwtToken jwtToken;
     private final AuthenticationManager authenticationManager;
+    //Создание токена авторизации
     public ResponseEntity<?> createAuthorizationToken(JwtRequest jwtRequest){
+        //Проврека валидности данных
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                     (jwtRequest.getUsername(), jwtRequest.getPassword()));
@@ -34,19 +34,27 @@ public class AuthorizationService {
         catch (BadCredentialsException e){
             return new ResponseEntity<>(new ControllerException(HttpStatus.UNAUTHORIZED.value(),"Неверный логин или пароль."),HttpStatus.UNAUTHORIZED);
         }
+        //Подгрузка пользователя
         UserDetails userDetails= userService.loadUserByUsername(jwtRequest.getUsername());
+
+        //Создание токена
         String token = jwtToken.generateToken(userDetails);
+
         return ResponseEntity.ok(new JwtResponse(token));
     }
-
+    //Создание нового пользователя
     public ResponseEntity<?> createNewUser(RegisterRequest registerRequest){
+        //Проверка на идентичность паролей
         if(!Objects.equals(registerRequest.getPassword(), registerRequest.getConfirmPassword())){
-            return new ResponseEntity<>(new ControllerException(HttpStatus.BAD_REQUEST.value(),"Пароли не совпадают"),HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new ControllerException(HttpStatus.BAD_REQUEST.value(),"Пароли не совпадают."),HttpStatus.UNAUTHORIZED);
         }
+        //Проверка занято ли имя пользователя
         if(userService.findByUsername(registerRequest.getUsername()).isPresent()){
-            return new ResponseEntity<>(new ControllerException(HttpStatus.UNAUTHORIZED.value(),"Пароли не совпадают"),HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new ControllerException(HttpStatus.UNAUTHORIZED.value(),"Пользователь с таким именем уже существует."),HttpStatus.UNAUTHORIZED);
         }
+        //Создание пользователя
         User user = userService.createNewUser(registerRequest);
+
         return ResponseEntity.ok(new UserDTO(user.getId(),user.getUsername(),user.getPassword()));
     }
 

@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtToken jwtToken;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader=request.getHeader("Authorization");
         String username=null;
         String jwt=null;
 
-        if(authHeader!=null && authHeader.startsWith("Bearer: ")){
-            jwt=authHeader.substring(8);
+        /*Валидация токена*/
+        if(authHeader!=null && authHeader.startsWith("Bearer ")){
+            jwt=authHeader.substring(7);
             try {
                 username=jwtToken.getUsername(jwt);
             }
@@ -43,6 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
+        /*Создание токена*/
         if (username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
             UsernamePasswordAuthenticationToken token=new UsernamePasswordAuthenticationToken(
               username,

@@ -4,7 +4,7 @@ import com.example.TestCase.entyties.DTO.RegisterRequest;
 import com.example.TestCase.entyties.User;
 import com.example.TestCase.entyties.exceptions.UserAlreadyExistException;
 import com.example.TestCase.repositories.UserRepository;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,12 +18,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class UserService implements UserDetailsService {
-    private final UserRepository userRepository;
-    private final RoleService roleService;
-    private final PasswordEncoder passwordEncoder;
-
+    private  UserRepository userRepository;
+    private  RoleService roleService;
+    private  PasswordEncoder passwordEncoder;
+    @Autowired
+    private void setUserRepository(UserRepository userRepository){
+        this.userRepository=userRepository;
+    }
+    @Autowired
+    private void setPasswordEncoder(PasswordEncoder passwordEncoder){
+        this.passwordEncoder=passwordEncoder;
+    }
+    @Autowired
+    private void setRoleService(RoleService roleService){
+        this.roleService=roleService;
+    }
     public Optional<User> findByUsername(String name){
         return userRepository.findByUsername(name);
     }
@@ -42,7 +52,7 @@ public class UserService implements UserDetailsService {
     }
     public User createNewUser(RegisterRequest registerRequest){
         if(userRepository.findByUsername(registerRequest.getUsername()).isPresent()){
-            throw new UserAlreadyExistException(String.format("Пользователь '%s' не найден",registerRequest.getUsername()));
+            throw new UserAlreadyExistException(String.format(registerRequest.getUsername()));
         }
         else{
             User user= new User();

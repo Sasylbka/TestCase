@@ -37,7 +37,7 @@ public class JwtToken {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(issuedDate)
                 .setExpiration(expiredDate)
-                .signWith(key,SignatureAlgorithm.ES256)
+                .signWith(key,SignatureAlgorithm.HS256)
                 .compact();
     }
     public String getUsername(String token){

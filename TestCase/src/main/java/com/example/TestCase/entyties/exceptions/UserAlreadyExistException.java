@@ -1,13 +1,9 @@
 package com.example.TestCase.entyties.exceptions;
 
 import org.springframework.security.core.AuthenticationException;
-
+/*Кастомное исключение для существуюшего пользователя*/
 public class UserAlreadyExistException extends AuthenticationException {
-    public UserAlreadyExistException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
-
-    public UserAlreadyExistException(String msg) {
-        super(msg);
+    public UserAlreadyExistException(String username) {
+        super("Пользователь "+username+" не найден");
     }
 }
